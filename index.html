@@ -1,0 +1,277 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Nexus | Service Unavailable</title>
+  <style>
+    :root {
+      --bg: #040709;
+      --panel: rgba(7, 14, 22, 0.84);
+      --neon: #00ff88;
+      --accent: #70d8ff;
+      --text: #d9f8ff;
+      --muted: #9ec4cf;
+    }
+    * { box-sizing: border-box; }
+    html, body {
+      margin: 0;
+      height: 100%;
+      background: var(--bg);
+      color: var(--text);
+      font-family: "Courier New", Consolas, monospace;
+      overflow: hidden;
+    }
+    #matrix {
+      position: fixed;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      opacity: 0.3;
+      z-index: 0;
+    }
+    .fx-grid {
+      position: fixed;
+      inset: 0;
+      z-index: 1;
+      pointer-events: none;
+      background-image:
+        linear-gradient(rgba(112,216,255,0.05) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(112,216,255,0.05) 1px, transparent 1px);
+      background-size: 36px 36px;
+      animation: drift 16s linear infinite;
+    }
+    .noise {
+      position: fixed;
+      inset: 0;
+      z-index: 1;
+      pointer-events: none;
+      opacity: 0.1;
+      background-image: radial-gradient(rgba(255,255,255,0.35) 0.4px, transparent 0.8px);
+      background-size: 3px 3px;
+      animation: noiseShift 0.25s steps(2) infinite;
+    }
+    @keyframes noiseShift {
+      0% { transform: translate(0, 0); }
+      50% { transform: translate(1px, -1px); }
+      100% { transform: translate(-1px, 1px); }
+    }
+    @keyframes drift { from { transform: translate(0, 0);} to { transform: translate(-36px, -36px);} }
+    .wrap {
+      position: relative;
+      z-index: 2;
+      min-height: 100%;
+      display: grid;
+      place-items: center;
+      padding: 24px;
+    }
+    .card {
+      width: min(920px, 96vw);
+      background: var(--panel);
+      border: 1px solid rgba(112,216,255,0.45);
+      border-radius: 16px;
+      box-shadow: 0 0 30px rgba(112,216,255,0.2), inset 0 0 48px rgba(0,255,136,0.06);
+      padding: 34px 30px 26px;
+      position: relative;
+      overflow: hidden;
+      backdrop-filter: blur(6px);
+    }
+    .card::before {
+      content: "";
+      position: absolute;
+      inset: -140% -40%;
+      background: conic-gradient(from 120deg, transparent, rgba(112,216,255,0.08), transparent 33%);
+      animation: spin 7s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .content { position: relative; z-index: 1; text-align: center; }
+    .code {
+      margin: 0;
+      font-size: clamp(40px, 7vw, 78px);
+      color: var(--accent);
+      text-shadow: 0 0 18px rgba(112,216,255,0.5);
+      letter-spacing: 3px;
+    }
+    .title {
+      margin: 8px 0 18px;
+      font-size: clamp(20px, 3vw, 34px);
+      color: var(--neon);
+      text-shadow: 0 0 14px rgba(0,255,136,0.45);
+      position: relative;
+    }
+    .title.glitch::before,
+    .title.glitch::after {
+      content: attr(data-text);
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 100%;
+      overflow: hidden;
+      pointer-events: none;
+    }
+    .title.glitch::before {
+      color: rgba(0,255,136,0.5);
+      transform: translateX(-1px);
+      animation: glitchA 2.8s infinite linear alternate-reverse;
+    }
+    .title.glitch::after {
+      color: rgba(112,216,255,0.45);
+      transform: translateX(1px);
+      animation: glitchB 2.2s infinite linear alternate-reverse;
+    }
+    @keyframes glitchA {
+      0% { clip-path: inset(0 0 82% 0); }
+      30% { clip-path: inset(52% 0 24% 0); }
+      60% { clip-path: inset(18% 0 62% 0); }
+      100% { clip-path: inset(68% 0 14% 0); }
+    }
+    @keyframes glitchB {
+      0% { clip-path: inset(78% 0 2% 0); }
+      25% { clip-path: inset(12% 0 70% 0); }
+      55% { clip-path: inset(58% 0 26% 0); }
+      100% { clip-path: inset(24% 0 54% 0); }
+    }
+    .desc {
+      margin: 0 0 10px;
+      line-height: 1.65;
+      font-size: clamp(14px, 2vw, 18px);
+      color: var(--muted);
+      max-width: 78ch;
+      text-align: left;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    .actions {
+      margin-top: 22px;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 12px;
+    }
+    .btn {
+      text-decoration: none;
+      border: 1px solid rgba(0,255,136,0.5);
+      color: #d8fff0;
+      background: linear-gradient(145deg, rgba(0,255,136,0.18), rgba(0,150,95,0.12));
+      border-radius: 10px;
+      padding: 12px 18px;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      transition: transform 0.2s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+      box-shadow: 0 0 14px rgba(0,255,136,0.2);
+    }
+    .btn:hover {
+      transform: translateY(-1px);
+      border-color: rgba(0,255,136,0.85);
+      box-shadow: 0 0 24px rgba(0,255,136,0.45);
+    }
+    .btn.alt {
+      border-color: rgba(112,216,255,0.5);
+      background: linear-gradient(145deg, rgba(112,216,255,0.16), rgba(57,126,174,0.12));
+      box-shadow: 0 0 14px rgba(112,216,255,0.2);
+    }
+    .btn.alt:hover {
+      border-color: rgba(112,216,255,0.85);
+      box-shadow: 0 0 24px rgba(112,216,255,0.42);
+    }
+    .hint {
+      margin-top: 14px;
+      font-size: 13px;
+      color: #8eb0ba;
+      text-align: center;
+    }
+    .status-line {
+      margin-top: 14px;
+      font-size: 12px;
+      color: #9ecce0;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+    .dots {
+      display: inline-flex;
+      gap: 5px;
+      vertical-align: middle;
+    }
+    .dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: rgba(112,216,255,0.45);
+      box-shadow: 0 0 8px rgba(112,216,255,0.42);
+      animation: dotPulse 1.2s ease-in-out infinite;
+    }
+    .dot:nth-child(2) { animation-delay: 0.2s; }
+    .dot:nth-child(3) { animation-delay: 0.4s; }
+    @keyframes dotPulse {
+      0%, 100% { transform: scale(0.8); opacity: 0.45; }
+      50% { transform: scale(1.2); opacity: 1; }
+    }
+  </style>
+</head>
+<body>
+  <canvas id="matrix" aria-hidden="true"></canvas>
+  <div class="fx-grid" aria-hidden="true"></div>
+  <div class="noise" aria-hidden="true"></div>
+  <main class="wrap">
+    <section class="card" role="status" aria-live="polite">
+      <div class="content">
+        <h1 class="code">5XX</h1>
+        <h2 class="title glitch" data-text="Service Is Temporarily Unavailable">Service Is Temporarily Unavailable</h2>
+        <p class="desc">
+          The node is currently unstable or under maintenance. Please try again shortly.
+          In the meantime, visit the main portal and enjoy the music stream.
+        </p>
+        <p class="desc">
+          If the issue keeps repeating, contact support and we will investigate.
+        </p>
+        <div class="actions">
+          <a class="btn" href="https://nyxx.su" target="_blank" rel="noopener noreferrer">Open Main Site</a>
+          <a class="btn alt" href="mailto:nyxxweare@gmail.com">Contact Support</a>
+        </div>
+        <div class="hint">Support: nyxxweare@gmail.com</div>
+        <div class="status-line">
+          Recovery channel initializing
+          <span class="dots" aria-hidden="true">
+            <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+          </span>
+        </div>
+      </div>
+    </section>
+  </main>
+  <script>
+    (function () {
+      const canvas = document.getElementById("matrix");
+      const ctx = canvas.getContext("2d");
+      const chars = "01ABCDEFGHIJKLMNOPQRSTUVWXYZ<>[]{}()#$%&*";
+      let w = 0, h = 0, font = 16, cols = 0, drops = [];
+      function resize() {
+        w = canvas.width = window.innerWidth;
+        h = canvas.height = window.innerHeight;
+        cols = Math.max(1, Math.floor(w / font));
+        drops = Array(cols).fill(0).map(() => Math.random() * h / font);
+      }
+      function draw() {
+        ctx.fillStyle = "rgba(4,7,9,0.12)";
+        ctx.fillRect(0, 0, w, h);
+        ctx.fillStyle = "#70d8ff";
+        ctx.font = font + "px monospace";
+        for (let i = 0; i < cols; i++) {
+          const ch = chars[(Math.random() * chars.length) | 0];
+          const x = i * font;
+          const y = drops[i] * font;
+          ctx.fillText(ch, x, y);
+          if (y > h && Math.random() > 0.976) drops[i] = 0;
+          drops[i] += 0.7;
+        }
+      }
+      resize();
+      window.addEventListener("resize", resize, { passive: true });
+      setInterval(draw, 34);
+    })();
+  </script>
+</body>
+</html>
